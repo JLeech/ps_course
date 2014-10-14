@@ -43,5 +43,41 @@ class CommandTable
 	def initialize
 		@file = "commands.txt"
 		@commands = IO.readlines(@file)
+		@commands.each { |command| command.chomp! }
 	end
 end
+
+module LexerState
+	
+	COMMAND = 0
+	FLAGS = 1
+	ARGUMENTS = 2
+	PIPE = 3
+
+end
+
+class Lexer
+	include LexerState
+	attr_accessor :pre_tokens
+	attr_accessor :state
+	attr_accessor :line
+	attr_accessor :messages
+
+	def initialize(line)
+		@pre_tokens = line.split(" ")
+		@state = COMMAND
+		@tokens = []
+		@messages =[]
+	end
+
+	def get_token
+		@pre_tokens.each do |tok|
+			puts tok
+		end
+	end
+
+end
+
+ct = CommandTable.instance
+lex = Lexer.new("Make-Object -directory dir-dir | Rename-Object -directory new_dir | Make-Object  ./$_/inside.txt | Zip-Object -recursive dir-dir")
+lex.get_token

@@ -28,6 +28,15 @@ class Command
 	def initialize(name,position)
 		@name = name
 		@position = position
+		@flags = []
+		@arguments = []
+	end
+
+	def print
+		puts ": #{@name} : #{@position}"
+		puts ":    #{flags}"
+		puts ":    #{arguments}"
+		puts "-------------"
 	end
 end
 

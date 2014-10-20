@@ -1,50 +1,6 @@
 require 'singleton'
+require_relative 'tokens'
 
-class Command
-
-	attr_accessor :name
-	attr_accessor :flags
-	attr_accessor :arguments
-
-	def initialize(token)
-
-	end
-
-end
-
-class Position
-	attr_accessor :line
-	attr_accessor :position
-
-	def initialize (line, pos)
-		@line = line
-		@position = pos
-	end
-end
-
-class Fragment
-	attr_accessor :start
-	attr_accessor :finish
-
-	def initialize(start,finish)
-		@start = start
-		@finish = finish
-	end
-end
-
-class Message
-	attr_accessor :error
-	attr_accessor :text
-
-	def initialize(error,text)
-		@error = error
-		@text = text
-	end
-
-	def isError?
-		return error
-	end
-end
 
 class FlagsTable
 	include Singleton
@@ -67,7 +23,6 @@ class FlagsTable
 		return true if @flags[command].include?(flag)
 		return false
 	end
-
 end
 
 class CommandTable
@@ -80,7 +35,6 @@ class CommandTable
 		@file = "commands.txt"
 		@commands = IO.readlines(@file)
 		@commands.each { |command| command.chomp! }
-
 	end
 
 	def command?(token)
@@ -92,37 +46,65 @@ class CommandTable
 	end
 end
 
-class Lexer
-	attr_accessor :pre_tokens
-	attr_accessor :state
-	attr_accessor :line
-	attr_accessor :messages
-
+class Tokenizer
+	
 	COMMAND = 0
 	ARGS = 1
+	
+	attr_accessor :line 
+	attr_accessor :current_length
+	attr_accessor :state
+	attr_accessor :flags_table
+	attr_accessor :commands_table
+
 
 	def initialize(line)
-		@pre_tokens = line.split(" ")
+		@line = line
+		@current_length = 1
 		@state = COMMAND
-		@tokens = []
-		@messages =[]
+		@flags_table = FlagsTable.instance
+		@commands_table = CommandTable.instance
 	end
 
-	def parse_tokens
-
-	end
-
-	def get_token
-		@pre_tokens.each do |tok|
-			puts tok
+	def get_next
+		out = {}
+		if line.length <= 0
+			out["status"] = "over"
+			return out
 		end
+		token = line.split(" ").first
+		if @state == COMMAND
+			if @commands_table.command?(token)
+				command = Command.new(token,@current_length)
+				out["command"] = command
+			else
+				message = Message.new(true,"unknown command: #{@current_length}: #{token}")
+				out["message"] = message
+			end
+			@state = ARGS
+		elsif @state == ARGS
+			if token.start_with?("-")
+				flag = Flag.new(token,@current_length)
+				out["flag"] = flag
+			elsif token.start_with?("|")
+				out["pipe"] = token
+				@state = COMMAND
+			else
+				argument = Argument.new(token,@current_length)
+				out["argument"] = argument
+			end
+		end
+		@line.sub!(token,"").strip!
+		@current_length += token.length+1
+		return out
 	end
-
 end
 
-ft = FlagsTable.instance
-lex = Lexer.new("Make-Object -directory dir-dir | Rename-Object -directory new_dir | Make-Object ./$_/inside.txt | Zip-Object -recursive dir-dir")
-puts ft.has_flag?("Make-Object","-directory")
+tok = Tokenizer.new("Make-Object -directory dir-dir | Rename-Object -directory new_dir | Make-Object ./$_/inside.txt | Zip-Object -recursive dir-dir")
 
-
+loop do
+	token = tok.get_next 
+	puts token
+	break if token["status"] == "over"
+end
 

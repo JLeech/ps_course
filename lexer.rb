@@ -5,10 +5,15 @@ require_relative 'tables'
 
 class Tokenizer
 	
-	COMMAND = 0
-	ARGS = 1
-	
+	LF_COMMAND = 0
+	LF_ARGS = 1
 	OVER = 2
+
+	COMMAND = "command"
+	MESSAGE = "message"
+	FLAG = "flag"
+	PIPE = "pipe"
+	ARGUMENT = "argument"
 
 	attr_accessor :line 
 	attr_accessor :current_length
@@ -19,7 +24,7 @@ class Tokenizer
 	def initialize(line)
 		@line = line
 		@current_length = 1
-		@state = COMMAND
+		@state = LF_COMMAND
 		@commands_table = CommandTable.instance
 	end
 
@@ -30,25 +35,25 @@ class Tokenizer
 			return out
 		end
 		token = line.split(" ").first
-		if @state == COMMAND
+		if @state == LF_COMMAND
 			if @commands_table.command?(token)
 				command = Command.new(token,@current_length)
-				out["command"] = command
+				out[COMMAND] = command
 			else
 				message = Message.new(true,"#{@current_length}: unknown command #{token}")
-				out["message"] = message
+				out[MESSAGE] = message
 			end
-			@state = ARGS
-		elsif @state == ARGS
+			@state = LF_ARGS
+		elsif @state == LF_ARGS
 			if token.start_with?("-")
 				flag = Flag.new(token,@current_length)
-				out["flag"] = flag
+				out[FLAG] = flag
 			elsif token.start_with?("|")
-				out["pipe"] = token
-				@state = COMMAND
+				out[PIPE] = token
+				@state = LF_COMMAND
 			else
 				argument = Argument.new(token,@current_length)
-				out["argument"] = argument
+				out[ARGUMENT] = argument
 			end
 		end
 		@line.sub!(token,"").strip!
@@ -61,6 +66,13 @@ class Lexer
 
 	ERROR = 0
 	PARSE = 1
+
+	COMMAND = Tokenizer::COMMAND
+	MESSAGE = Tokenizer::MESSAGE
+	FLAG = Tokenizer::FLAG
+	PIPE = Tokenizer::PIPE
+	ARGUMENT = Tokenizer::ARGUMENT	
+
 
 	attr_accessor :commands
 	attr_accessor :tokenizer
@@ -83,25 +95,25 @@ class Lexer
 		command = Command.new("",1)
 		loop do
 			token = @tokenizer.get_next 
-			if token.has_key?("message")
-				puts "#{token['message'].text}"
+			if token.has_key?(MESSAGE)
+				puts "#{token[MESSAGE].text}"
 				@state = ERROR
 			end
-			if token.has_key?("command") && (no_error)
-				command = token["command"]	
+			if token.has_key?(COMMAND) && (no_error)
+				command = token[COMMAND]	
 			end
-			if token.has_key?("flag") && (no_error)
-				if @flags_table.has_flag?(command, token["flag"])
-					command.flags.push(token["flag"].name)
+			if token.has_key?(FLAG) && (no_error)
+				if @flags_table.has_flag?(command, token[FLAG])
+					command.flags.push(token[FLAG].name)
 				else
-					puts "#{token['flag'].position} : unknown flag #{token['flag'].name}"
+					puts "#{token[FLAG].position} : unknown flag #{token[FLAG].name}"
 					@state = ERROR
 				end
 			end
-			if token.has_key?("argument") && (no_error)
-				command.arguments.push(token["argument"].name)
+			if token.has_key?(ARGUMENT) && (no_error)
+				command.arguments.push(token[ARGUMENT].name)
 			end
-			if token.has_key?("pipe")
+			if token.has_key?(PIPE)
 				if (no_error)
 					command.print
 					@blocks.push(command)

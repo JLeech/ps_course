@@ -74,7 +74,7 @@ class Lexer
 	ARGUMENT = Tokenizer::ARGUMENT	
 
 
-	attr_accessor :commands
+	attr_accessor :blocks
 	attr_accessor :tokenizer
 	attr_accessor :flags_table
 	attr_accessor :state
@@ -128,16 +128,14 @@ class Lexer
 					command.print
 					@blocks.push(command)
 				end
-				puts @blocks
 				break
 			end
 		end
 	end
-
 
 end
 
 
 lex = Lexer.new("Make-Object -directory dir-dir | Rename-Object -directory new_dir | Make-Object ./$_/inside.txt | Zip-Object -recursive dir-dir")
 lex.iterate
-
+lex.blocks.each { |command| puts command.name }

@@ -1,0 +1,16 @@
+Copy-Object
+Move-Object
+Rename-Object
+List-Objects
+Remove-Object
+Diff-Files
+Make-Object
+Change-Directory
+Current-Directory
+Find-Object
+Zip-Object
+Unzip-Object
+Get-Path
+Print-File
+Show-History
+Find-History

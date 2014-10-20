@@ -41,3 +41,6 @@ class CommandTable
 		end
 	end
 end
+
+class TypesTable
+end

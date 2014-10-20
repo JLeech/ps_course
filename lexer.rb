@@ -75,12 +75,14 @@ class Lexer
 
 
 	attr_accessor :blocks
+	attr_accessor :messages
 	attr_accessor :tokenizer
 	attr_accessor :flags_table
 	attr_accessor :state
 	
 	def initialize(line)
 		@blocks = []
+		@messages = []
 		@tokenizer = Tokenizer.new(line)
 		@flags_table = FlagsTable.instance
 		@state = PARSE
@@ -91,37 +93,42 @@ class Lexer
 		return true 
 	end
 
+	def print_messages
+		@messages.each { |mes| puts mes.text }
+	end
+
+
 	def iterate
-		command = Command.new("",1)
+		command = Command.new
 		loop do
 			token = @tokenizer.get_next 
 			if token.has_key?(MESSAGE)
-				puts "#{token[MESSAGE].text}"
+				@messages.push(token[MESSAGE])
 				@state = ERROR
 			end
-			if token.has_key?(COMMAND) && (no_error)
+			if (no_error) &&  token.has_key?(COMMAND)
 				command = token[COMMAND]	
 			end
-			if token.has_key?(FLAG) && (no_error)
+			if (no_error) && token.has_key?(FLAG)
 				if @flags_table.has_flag?(command, token[FLAG])
 					command.flags.push(token[FLAG].name)
 				else
-					puts "#{token[FLAG].position} : unknown flag #{token[FLAG].name}"
+					message = Message.new(true,"#{token[FLAG].position} : unknown flag #{token[FLAG].name}")
+					@messages.push(message)
 					@state = ERROR
 				end
 			end
-			if token.has_key?(ARGUMENT) && (no_error)
+			if  (no_error) && token.has_key?(ARGUMENT)
 				command.arguments.push(token[ARGUMENT].name)
 			end
 			if token.has_key?(PIPE)
 				if (no_error)
 					command.print
 					@blocks.push(command)
-					command = Command.new("",1)
 				else
 					@state = PARSE
-					command = Command.new("",1)
 				end
+				command = Command.new
 			end
 			if token["status"] == Tokenizer::OVER
 				if (no_error)
@@ -132,7 +139,6 @@ class Lexer
 			end
 		end
 	end
-
 end
 
 

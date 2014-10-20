@@ -25,7 +25,7 @@ class Command
 	attr_accessor :arguments
 	attr_accessor :position
 
-	def initialize(name,position)
+	def initialize(name = "",position = 0)
 		@name = name
 		@position = position
 		@flags = []

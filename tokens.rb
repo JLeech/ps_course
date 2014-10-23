@@ -1,11 +1,52 @@
 class Argument
+	
+	INSERT = "$_"
+
 	attr_accessor :name
+	attr_accessor :position
+	attr_accessor :insertion
+
+	def initialize(name,position)
+		@name = name
+		@position = position
+		@insertion = @name.index(INSERT)
+	end
+
+	def has_insertion?
+		return !@insertion.nil?
+	end
+end
+
+class Pipe
+	USUAL = "|"
+	ACCUMULATE = "accum"
+	EACH = "each"
+	OVER = "end"
+
+	attr_accessor :name
+	attr_accessor :type
 	attr_accessor :position
 
 	def initialize(name,position)
 		@name = name
 		@position = position
+		@type = def_type
 	end
+
+	def def_type
+		type = ACCUMULATE if @name.end_with?(ACCUMULATE)
+		type = EACH if @name.end_with?(EACH)
+		type = OVER if @name.end_with?(OVER)
+		type = USUAL if @name == USUAL
+		return type
+	end
+
+	def print
+		puts ": #{@name} : #{@position}"
+		puts ":    #{type}"
+		puts "-------------"
+	end
+
 end
 
 class Flag
@@ -35,7 +76,9 @@ class Command
 	def print
 		puts ": #{@name} : #{@position}"
 		puts ":    #{flags}"
-		puts ":    #{arguments}"
+		arguments.each do |arg|
+			puts ":    #{arg.name} : #{arg.has_insertion?}"
+		end
 		puts "-------------"
 	end
 end

@@ -13,3 +13,4 @@ Unzip-Object -recursive -path
 Print-File -quiet
 Show-History -session -all -quiet
 Find-History -regular -session -all
+New-Command -bla -lo 

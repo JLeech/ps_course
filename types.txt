@@ -1,16 +1,16 @@
-Copy-Object
-Move-Object
-Rename-Object
-List-Objects
-Remove-Object
-Diff-Files
-Make-Object
-Change-Directory
-Current-Directory
-Find-Object
-Zip-Object
-Unzip-Object
-Get-Path
-Print-File
-Show-History
-Find-History
+Copy-Object [string,string]||[pipe,string]||[pipe,pipe] -[file]
+Move-Object [string,string]||[pipe,string]||[pipe,pipe] -[file]
+Rename-Object [string,string]||[pipe,string]||[pipe,pipe] -[file]
+List-Objects [string]||[pipe] -[array(file)]
+Remove-Object [string]||[pipe]
+Diff-Files [string,string]||[pipe,string]||[pipe,pipe] -[array(string)]
+Make-Object [string]||[pipe] -[file]
+Change-Directory [string] -[file]
+Current-Directory -[file]
+Find-Object [string]||[pipe] -[file]
+Zip-Object [string]||[pipe] -[file]
+Unzip-Object [string,string]||[pipe,string]||[pipe,pipe] -[file]
+Get-Path [string]||[pipe] -[string]
+Print-File [string]||[pipe] -[array(string)]
+Show-History -[array(string)]
+Find-History [string]||[pipe] -[array(string)]

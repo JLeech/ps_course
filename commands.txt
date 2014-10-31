@@ -14,3 +14,4 @@ Get-Path
 Print-File
 Show-History
 Find-History
+New-Command

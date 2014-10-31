@@ -3,7 +3,7 @@ require_relative 'tokens'
 require_relative 'tables'
 require_relative 'tokenizer'
 
-class Lexer
+class Sintax
 
 	ERROR = 0
 	PARSE = 1
@@ -86,8 +86,9 @@ end
 
 
 command1 = "Make-Object -directory dir-dir | Rename-Object -directory new_dir | Make-Object ./$_/inside.txt | Zip-Object -recursive dir-dir"
-command2 = "Make-Object -directory dir-dir | Print-File -quiet list.txt |each Make-Object dir-dir/$_.txt"
+command2 = "Make-Object -directory dir-dir | Print-File -quiet list.txt |each Make-Object dir-dir/$_.txt | New-Command -bla"
 
-lex = Lexer.new(command1)
+
+lex = Sintax.new(command2)
 lex.iterate
-#lex.blocks.each { |command| puts command.name }
+lex.blocks.each { |command| puts command.name }

@@ -89,6 +89,5 @@ command1 = "Make-Object -directory dir-dir | Rename-Object -directory new_dir | 
 command2 = "Make-Object -directory dir-dir | Print-File -quiet list.txt |each Make-Object dir-dir/$_.txt | New-Command -bla"
 
 
-lex = Sintax.new(command2)
-lex.iterate
-lex.blocks.each { |command| puts command.name }
+#lex = Sintax.new(command2)
+#lex.iterate

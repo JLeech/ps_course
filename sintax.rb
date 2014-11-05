@@ -75,8 +75,8 @@ class Sintax
 			end
 			if token["status"] == Tokenizer::OVER
 				if (no_error)
-					command.print
 					@blocks.push(command)
+					command.print
 				end
 				break
 			end

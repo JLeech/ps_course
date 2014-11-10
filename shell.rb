@@ -3,13 +3,15 @@
 
 
 require 'curses'
-
+require_relative 'sintax'
 
 class Shell 
 
 	attr_accessor :line
 	attr_accessor :cur_x
 	attr_accessor :cur_y
+	attr_accessor :command_line_start
+	attr_accessor :command_line_end
 
 	def initialize
 		Curses.noecho # do not show typed keys
@@ -21,19 +23,38 @@ class Shell
 		@cur_x = 1
 		@cur_y = 0
 		move_cursor_right
+		@line = ""
+		@command_line_start = 0
+		@command_line_end = 0
 	end
 
 	def new_command
+		Curses.setpos(@cur_y+1,0)
+		Curses.insch(">")
+		@cur_x = 1
+		@cur_y += 1
+		move_cursor_right
 		@line = ""
 	end
 	
 	def move_cursor_right
-		@cur_x +=1 if @cur_x < Curses.cols
+		if @cur_x < Curses.cols
+			@cur_x += 1 
+		else
+			@cur_y += 1
+			@cur_x = 0 
+		end
 		Curses.setpos(@cur_y,@cur_x)
 	end	
 
 	def move_cursor_left
-		@cur_x -=1 if @cur_x > 1	
+		if @cur_x > 1
+			@cur_x -= 1
+		else
+			@cur_x = Curses.cols
+			@cur_y -= 1 if @cur_y >=0
+		end
+		
 		Curses.setpos(@cur_y,@cur_x)
 	end	
 
@@ -41,8 +62,7 @@ class Shell
 	def start
 		loop do
 			  char = Curses.getch 
-			case char
-				when Curses::Key::UP		
+			case char		
 
 				when Curses::Key::LEFT 
 					move_cursor_left
@@ -55,8 +75,20 @@ class Shell
 				when Curses::Key::BACKSPACE
 					move_cursor_left
 					Curses.delch
+					Curses.doupdate
+				when Curses::Key::UP
+					line = ""
+					Curses.cols.times do 
+						line += Curses::keyname(Curses.inch)
+						@cur_x -= 1
+						Curses.setpos(@cur_y,@cur_x)
+					end
+					sin = Sintax.new(line.reverse)
+					new_command
+					sin.iterate
 				else
 					Curses.insch(char)
+					@line += Curses::keyname(char)
 					move_cursor_right
 			end
 		end

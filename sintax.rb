@@ -20,6 +20,7 @@ class Sintax
 	attr_accessor :tokenizer
 	attr_accessor :flags_table
 	attr_accessor :state
+	attr_accessor :skeleton
 	
 	def initialize(line)
 		@blocks = []
@@ -27,6 +28,9 @@ class Sintax
 		@tokenizer = Tokenizer.new(line)
 		@flags_table = FlagsTable.instance
 		@state = PARSE
+		@skeleton = File.open("sceleton.txt","a+")
+		@skeleton.write("\n#{line}\n\n")
+		@skeleton.close
 	end
 
 	def no_error
@@ -35,7 +39,7 @@ class Sintax
 	end
 
 	def print_messages
-		@messages.each { |mes| puts mes.text }
+		@messages.each { |mes| @skeleton.write(mes.text) }
 	end
 
 
@@ -54,8 +58,8 @@ class Sintax
 				if @flags_table.has_flag?(command, token[FLAG])
 					command.flags.push(token[FLAG].name)
 				else
-					message = Message.new(true,"#{token[FLAG].position} : unknown flag #{token[FLAG].name}")
-					@messages.push(message)
+					message = Message.new(true,"#{token[FLAG].position} : unknown flag #{token[FLAG].name}\n")
+					#@messages.push(message)
 					@state = ERROR
 				end
 			end
@@ -66,8 +70,8 @@ class Sintax
 				if (no_error)
 					@blocks.push(command)
 					@blocks.push(token[PIPE])
-					command.print
-					@blocks.last.print
+					#command.print
+					#@blocks.last.print
 				else
 					@state = PARSE
 				end
@@ -76,7 +80,7 @@ class Sintax
 			if token["status"] == Tokenizer::OVER
 				if (no_error)
 					@blocks.push(command)
-					command.print
+					#command.print
 				end
 				break
 			end
@@ -88,6 +92,5 @@ end
 command1 = "Make-Object -directory dir-dir | Rename-Object -directory new_dir | Make-Object ./$_/inside.txt | Zip-Object -recursive dir-dir"
 command2 = "Make-Object -directory dir-dir | Print-File -quiet list.txt |each Make-Object dir-dir/$_.txt | New-Command -bla"
 
-
-#lex = Sintax.new(command2)
-#lex.iterate
+#sin = Sintax.new(command1)
+#sin.iterate

@@ -26,11 +26,13 @@ class Pipe
 	attr_accessor :name
 	attr_accessor :type
 	attr_accessor :position
+	attr_accessor :skeleton
 
 	def initialize(name,position)
 		@name = name
 		@position = position
 		@type = def_type
+		@skeleton = File.open("sceleton.txt","a")
 	end
 
 	def def_type
@@ -42,9 +44,10 @@ class Pipe
 	end
 
 	def print
-		puts ": #{@name} : #{@position}"
-		puts ":    #{type}"
-		puts "-------------"
+		@skeleton.write(": #{@name} : #{@position}\n")
+		@skeleton.write(":    #{type}\n")
+		@skeleton.write("-------------\n")
+		@skeleton.close
 	end
 
 end
@@ -65,27 +68,31 @@ class Command
 	attr_accessor :flags
 	attr_accessor :arguments
 	attr_accessor :position
+	attr_accessor :skeleton
 
 	def initialize(name = "",position = 0)
 		@name = name
 		@position = position
 		@flags = []
 		@arguments = []
+		@skeleton = File.open("sceleton.txt","a")
 	end
 
 	def print
-		puts ": #{@name} : #{@position}"
-		puts ":    #{flags}"
+		@skeleton.write(": #{@name} : #{@position}\n")
+		@skeleton.write(":    #{flags}\n")
 		arguments.each do |arg|
-			puts ":    #{arg.name} : #{arg.has_insertion?}"
+			@skeleton.write(":    #{arg.name} : #{arg.has_insertion?}\n")
 		end
-		puts "-------------"
+		@skeleton.write("-------------\n")
+		@skeleton.close
 	end
 end
 
 class Message
 	attr_accessor :error
 	attr_accessor :text
+
 
 	def initialize(error,text)
 		@error = error

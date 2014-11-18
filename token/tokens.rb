@@ -69,6 +69,7 @@ class Command
 	attr_accessor :arguments
 	attr_accessor :position
 	attr_accessor :skeleton
+	attr_accessor :error
 
 	def initialize(name = "",position = 0)
 		@name = name
@@ -76,10 +77,11 @@ class Command
 		@flags = []
 		@arguments = []
 		@skeleton = File.open("sceleton.txt","a")
+		@error = false
 	end
 
 	def print
-		@skeleton.write(": #{@name} : #{@position}\n")
+		@skeleton.write(": #{@name} : #{@position} err: #{@error}\n")
 		@skeleton.write(":    #{flags}\n")
 		arguments.each do |arg|
 			@skeleton.write(":    #{arg.name} : #{arg.has_insertion?}\n")

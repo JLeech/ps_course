@@ -5,7 +5,7 @@ class FlagsTable
 	attr_accessor :file
 
 	def initialize
-		@file = "flags.txt"
+		@file = "token/flags.txt"
 		@flags = {}
 		lines = IO.readlines(@file)
 		lines.each { |line| line.chomp! }
@@ -28,7 +28,7 @@ class CommandTable
 	attr_accessor :file
 
 	def initialize
-		@file = "commands.txt"
+		@file = "token/commands.txt"
 		@commands = IO.readlines(@file)
 		@commands.each { |command| command.chomp! }
 	end
@@ -49,7 +49,7 @@ class TypesTable
 	attr_accessor :file
 
 	def initialize
-		@file = "types.txt"
+		@file = "token/types.txt"
 		@types = {}
 		lines = IO.readlines(@file)
 		lines.each { |line| parce_line(line)}

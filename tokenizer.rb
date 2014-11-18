@@ -1,6 +1,6 @@
 require 'singleton'
-require_relative 'tokens'
-require_relative 'tables'
+require_relative 'token/tokens'
+require_relative 'token/tables'
 
 class Tokenizer
 	
@@ -40,7 +40,10 @@ class Tokenizer
 				out[COMMAND] = command
 			else
 				message = Message.new(true,"#{@current_length}: unknown command #{token}")
+				command = Command.new(token,@current_length)
+				command.error = true
 				out[MESSAGE] = message
+				out[COMMAND] = command
 			end
 			@state = LF_ARGS
 		elsif @state == LF_ARGS

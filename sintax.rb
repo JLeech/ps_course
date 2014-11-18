@@ -1,10 +1,10 @@
 require 'singleton'
-require_relative 'tokens'
-require_relative 'tables'
+require_relative 'token/tokens'
+require_relative 'token/tables'
 require_relative 'tokenizer'
 
 class Sintax
-
+	
 	ERROR = 0
 	PARSE = 1
 
@@ -28,7 +28,7 @@ class Sintax
 		@tokenizer = Tokenizer.new(line)
 		@flags_table = FlagsTable.instance
 		@state = PARSE
-		@skeleton = File.open("sceleton.txt","a+")
+		@skeleton = File.open("sceleton.txt","w+")
 		@skeleton.write("\n#{line}\n\n")
 		@skeleton.close
 	end
@@ -39,9 +39,15 @@ class Sintax
 	end
 
 	def print_messages
+		@skeleton = File.open("sceleton.txt","a+")
 		@messages.each { |mes| @skeleton.write(mes.text) }
+		@skeleton.close
 	end
 
+	def print_blocks
+		@blocks.each { |command| command.print }
+		puts @blocks.length
+	end
 
 	def iterate
 		command = Command.new
@@ -49,7 +55,10 @@ class Sintax
 			token = @tokenizer.get_next 
 			if token.has_key?(MESSAGE)
 				@messages.push(token[MESSAGE])
+				command = token[COMMAND]
+				@blocks.push(command)
 				@state = ERROR
+
 			end
 			if (no_error) &&  token.has_key?(COMMAND)
 				command = token[COMMAND]	
@@ -59,7 +68,7 @@ class Sintax
 					command.flags.push(token[FLAG].name)
 				else
 					message = Message.new(true,"#{token[FLAG].position} : unknown flag #{token[FLAG].name}\n")
-					#@messages.push(message)
+					@messages.push(message)
 					@state = ERROR
 				end
 			end
@@ -87,10 +96,3 @@ class Sintax
 		end
 	end
 end
-
-
-command1 = "Make-Object -directory dir-dir | Rename-Object -directory new_dir | Make-Object ./$_/inside.txt | Zip-Object -recursive dir-dir"
-command2 = "Make-Object -directory dir-dir | Print-File -quiet list.txt |each Make-Object dir-dir/$_.txt | New-Command -bla"
-
-#sin = Sintax.new(command1)
-#sin.iterate

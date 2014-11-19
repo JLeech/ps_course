@@ -19,7 +19,7 @@ end
 
 class Pipe
 	USUAL = "|"
-	ACCUMULATE = "accum"
+	ACCUMULATE = "accu"
 	EACH = "each"
 	OVER = "end"
 
@@ -81,7 +81,7 @@ class Command
 	end
 
 	def print
-		@skeleton.write(": #{@name} : #{@position} err: #{@error}\n")
+		@skeleton.write(": #{@name} : #{@position} | err: #{@error}\n")
 		@skeleton.write(":    #{flags}\n")
 		arguments.each do |arg|
 			@skeleton.write(":    #{arg.name} : #{arg.has_insertion?}\n")
@@ -104,4 +104,13 @@ class Message
 	def isError?
 		return error
 	end
+
+	def self.unknown_command(position,token)
+		"#{position}: unknown command #{token}\n"
+	end
+
+	def self.unknown_flag(position, token)
+		"#{position} : unknown flag #{token}\n"
+	end
+
 end

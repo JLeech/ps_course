@@ -53,7 +53,6 @@ class TypesTable
 		@types = {}
 		lines = IO.readlines(@file)
 		lines.each { |line| parce_line(line)}
-		@types.keys.each { |key| puts "#{key} #{@types[key]}" }
 	end
 
 private

@@ -1,24 +1,28 @@
 
-Make-Objecct -directory dir-dir | Rename-Object -directory new_dir | Make-Object ./$_/inside.txt | Zip-Object -recursive dir-dir
+Make-Object -directory dir-dir |accu Print-File -quiet files.txt |each Make-Object $_[0]/$_.txt | Remove-Object $_[0]$name/$_[0]
 
-1: unknown command Make-Objecct: Make-Objecct : 1 err: true
-:    []
--------------
-: Rename-Object : 35 err: false
+: Make-Object : 1 | err: false
 :    ["-directory"]
-:    new_dir : false
--------------
-: | : 68
-:    |
--------------
-: Make-Object : 70 err: false
-:    []
-:    ./$_/inside.txt : true
--------------
-: | : 98
-:    |
--------------
-: Zip-Object : 100 err: false
-:    ["-recursive"]
 :    dir-dir : false
+-------------
+: |accu : 32
+:    accu
+-------------
+: Print-File : 38 | err: false
+:    ["-quiet"]
+:    files.txt : false
+-------------
+: |each : 66
+:    each
+-------------
+: Make-Object : 72 | err: false
+:    []
+:    $_[0]/$_.txt : true
+-------------
+: | : 97
+:    |
+-------------
+: Remove-Object : 99 | err: false
+:    []
+:    $_[0]$name/$_[0] : true
 -------------

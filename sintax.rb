@@ -67,7 +67,7 @@ class Sintax
 				if @flags_table.has_flag?(command, token[FLAG])
 					command.flags.push(token[FLAG].name)
 				else
-					message = Message.new(true,"#{token[FLAG].position} : unknown flag #{token[FLAG].name}\n")
+					message = Message.new(true, Message.unknown_flag(token[FLAG].position,token[FLAG].name))
 					@messages.push(message)
 					@state = ERROR
 				end
@@ -79,8 +79,6 @@ class Sintax
 				if (no_error)
 					@blocks.push(command)
 					@blocks.push(token[PIPE])
-					#command.print
-					#@blocks.last.print
 				else
 					@state = PARSE
 				end
@@ -89,10 +87,10 @@ class Sintax
 			if token["status"] == Tokenizer::OVER
 				if (no_error)
 					@blocks.push(command)
-					#command.print
 				end
 				break
 			end
 		end
 	end
+
 end

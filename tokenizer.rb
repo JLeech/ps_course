@@ -39,7 +39,7 @@ class Tokenizer
 				command = Command.new(token,@current_length)
 				out[COMMAND] = command
 			else
-				message = Message.new(true,"#{@current_length}: unknown command #{token}")
+				message = Message.new(true,Message.unknown_command(@current_length,token))
 				command = Command.new(token,@current_length)
 				command.error = true
 				out[MESSAGE] = message
@@ -63,4 +63,5 @@ class Tokenizer
 		@current_length += token.length+1
 		return out
 	end
+
 end

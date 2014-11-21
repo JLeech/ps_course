@@ -52,7 +52,7 @@ class Sintax
 	def iterate
 		command = Command.new
 		loop do
-			token = @tokenizer.get_next 
+			token = @tokenizer.get_next
 			if token.has_key?(MESSAGE)
 				@messages.push(token[MESSAGE])
 				command = token[COMMAND]
@@ -69,6 +69,8 @@ class Sintax
 				else
 					message = Message.new(true, Message.unknown_flag(token[FLAG].position,token[FLAG].name))
 					@messages.push(message)
+					command.error = true
+					@blocks.push(command)
 					@state = ERROR
 				end
 			end
@@ -80,6 +82,7 @@ class Sintax
 					@blocks.push(command)
 					@blocks.push(token[PIPE])
 				else
+					@blocks.push(token[PIPE])
 					@state = PARSE
 				end
 				command = Command.new
@@ -91,6 +94,7 @@ class Sintax
 				break
 			end
 		end
+		print_messages
 	end
 
 end

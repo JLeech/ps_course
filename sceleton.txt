@@ -1,5 +1,5 @@
 
-Make-Object -directory dir-dir |accu Print-File -quiet files.txt |each Make-Object $_[0]/$_.txt | Remove-Object $_[0]$name/$_[0]
+Make-Object -directory dir-dir |accu Print-File -quiet files.txt | Make-Object $_[0]/$_.txt | Remove-Object $_[0]$name/$_[0]
 
 : Make-Object : 1 | err: false
 :    ["-directory"]
@@ -12,17 +12,17 @@ Make-Object -directory dir-dir |accu Print-File -quiet files.txt |each Make-Obje
 :    ["-quiet"]
 :    files.txt : false
 -------------
-: |each : 66
-:    each
+: | : 66
+:    |
 -------------
-: Make-Object : 72 | err: false
+: Make-Object : 68 | err: false
 :    []
 :    $_[0]/$_.txt : true
 -------------
-: | : 97
+: | : 93
 :    |
 -------------
-: Remove-Object : 99 | err: false
+: Remove-Object : 95 | err: false
 :    []
 :    $_[0]$name/$_[0] : true
 -------------

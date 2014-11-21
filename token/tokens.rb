@@ -15,6 +15,10 @@ class Argument
 	def has_insertion?
 		return !@insertion.nil?
 	end
+
+	def as_string
+		"string: \"#{@name}\","
+	end
 end
 
 class Pipe
@@ -80,14 +84,32 @@ class Command
 		@error = false
 	end
 
-	def print
+	def print()
+		@skeleton = File.open("sceleton.txt","a")
 		@skeleton.write(": #{@name} : #{@position} | err: #{@error}\n")
 		@skeleton.write(":    #{flags}\n")
-		arguments.each do |arg|
-			@skeleton.write(":    #{arg.name} : #{arg.has_insertion?}\n")
+		if arguments != []
+			arguments.each do |arg|
+				@skeleton.write(":    #{arg.name} : #{arg.has_insertion?}\n") 
+			end
 		end
 		@skeleton.write("-------------\n")
 		@skeleton.close
+	end
+
+	def print_error(message)
+		@skeleton = File.open("sceleton.txt","a")
+		@error = true unless message.empty?
+		@skeleton.write(": ERROR: #{message}") unless message.empty?
+		@skeleton.close
+	end
+
+	def args_as_string
+		args_accum = ""
+		@arguments.each do |arg|
+			args_accum = "#{args_accum} #{arg.as_string}"
+		end
+		return "[#{args_accum}]"
 	end
 end
 

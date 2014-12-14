@@ -3,7 +3,7 @@ require_relative 'token/tokens'
 require_relative 'token/tables'
 require_relative 'tokenizer'
 
-class Sintax
+class Syntax
 	
 	ERROR = 0
 	PARSE = 1
@@ -45,8 +45,10 @@ class Sintax
 	end
 
 	def print_blocks
+		@skeleton = File.open("sceleton.txt","w+")
 		@blocks.each { |command| command.print }
 		puts @blocks.length
+		@skeleton.close
 	end
 
 	def iterate
@@ -61,7 +63,7 @@ class Sintax
 
 			end
 			if (no_error) &&  token.has_key?(COMMAND)
-				command = token[COMMAND]	
+				command = token[COMMAND]
 			end
 			if (no_error) && token.has_key?(FLAG)
 				if @flags_table.has_flag?(command, token[FLAG])

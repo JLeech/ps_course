@@ -3,7 +3,7 @@
 
 
 require 'curses'
-require_relative 'sintax'
+require_relative 'syntax.rb'
 
 class Shell 
 
@@ -86,6 +86,7 @@ class Shell
 					sin = Sintax.new(line.reverse)
 					new_command
 					sin.iterate
+					sin.print_blocks
 				else
 					Curses.insch(char)
 					@line += Curses::keyname(char)

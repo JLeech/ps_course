@@ -6,7 +6,7 @@ class Argument
 	attr_accessor :position
 	attr_accessor :insertion
 
-	def initialize(name,position)
+	def initialize(name,position= "0")
 		@name = name
 		@position = position
 		@insertion = @name.index(INSERT)
@@ -48,6 +48,7 @@ class Pipe
 	end
 
 	def print
+		@skeleton = File.open("sceleton.txt","a")
 		@skeleton.write(": #{@name} : #{@position}\n")
 		@skeleton.write(":    #{type}\n")
 		@skeleton.write("-------------\n")
@@ -110,6 +111,19 @@ class Command
 			args_accum = "#{args_accum} #{arg.as_string}"
 		end
 		return "[#{args_accum}]"
+	end
+
+	def is_make_object?
+		return true if @name == "Make-Object"
+		return false
+	end
+	def is_rename_object?
+		return true if @name == "Rename-Object"
+		return false
+	end
+	def is_zip_object?
+		return true if @name == "Zip-Object"
+		return false
 	end
 end
 

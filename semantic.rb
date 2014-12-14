@@ -1,4 +1,4 @@
-require 'singleton'
+
 require_relative 'token/tokens'
 require_relative 'token/tables'
 
@@ -35,7 +35,15 @@ class Semantic
 		in_pipe = ""
 		blocks.each do |block|
 			if ((block.class.to_s == Command.name.to_s))
-				puts block.name
+				unless block.error 
+					if block.arguments.count > @types_table.types[block.name]["in"].first.split(",").count
+						@error = true
+						block.error = true
+						should_be_in = @types_table.types[block.name]["in"]
+						block.print_error(error_message(block,should_be_in,in_pipe)) if @error
+					end
+				end
+
 				if @each
 					in_pipe = PIPE
 				end
@@ -44,11 +52,12 @@ class Semantic
 
 					should_be_in = @types_table.types[block.name]["in"]
 					args_places = check_args(block.arguments,should_be_in,in_pipe)
-					in_pipe = @types_table.types[block.name]["out"].first
-					add_type(args_places)	
 
 					block.print_error(error_message(block,should_be_in,in_pipe)) if @error 
 					
+					in_pipe = @types_table.types[block.name]["out"].first
+					add_type(args_places)	
+
 					@error = false
 				else
 					type_line.push("error")	
@@ -62,10 +71,11 @@ class Semantic
 			if (block.class.to_s == Pipe.name.to_s)
 				in_pipe = ARRAY if accumulate
 				determine_block_type(block)
-				puts block.name
 			end
+
 		end
 		puts "#{type_line}"
+		return type_line
 	end
 
 private 
@@ -94,7 +104,6 @@ private
 	end
 
 	def check_args(command_args, should, in_pipe_args)
-		puts "ips: #{in_pipe_args}"
 
 		income_args_count = command_args.count
 		

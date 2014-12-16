@@ -57,7 +57,6 @@ class Interpreter
 			else
 				result = execute(block,result)
 			end
-			
 		end
 	end
 
@@ -87,6 +86,7 @@ class Interpreter
 			if block.is_remove_object?
 				result = execute_remove_object(block,result)
 			end
+			drop_type_line
 		end
 		if ((block.class.to_s == Pipe.name.to_s))
 			if block.type == Pipe::ACCUMULATE
@@ -111,7 +111,6 @@ class Interpreter
 		argument = process_insertion(argument,result)
 
 		`rm -rf #{argument.name}`
-
 		return [argument.name]
 
 	end
@@ -150,15 +149,16 @@ class Interpreter
 		end
 		`rm -rf #{argument.name}` if force
 		if file
-			tmp = File.open("#{argument.name}","w") unless File.exist?("#{argument.name}")
-			tmp.close if File.exist?("#{argument.name}")
+			unless File.exist?("#{argument.name}")
+				tmp = File.open("#{argument.name}","w") 
+				tmp.close
+			end
 			out = "#{argument.name}" if File.exist?("#{argument.name}")
 		else
 			Dir.mkdir("#{argument.name}") unless File.exist?("#{argument.name}")
 			out = "#{argument.name}"
 		end
 		`chmod -x #{argument.name}` if exec
-		
 		return [out]
 	end
 
@@ -194,7 +194,6 @@ class Interpreter
 		else
 			puts file_data
 		end
-
 		return result
 
 	end
@@ -208,6 +207,7 @@ class Interpreter
 				recursive = true
 			end
 		end
+
 
 		if @type_line.first == "string"
 			argument = block.arguments.first.get_copy
@@ -226,9 +226,10 @@ class Interpreter
 			end
 			`zip -r #{argument.name} #{File.basename(argument.name)}`
 		else
-
+			`zip -r #{argument.name} #{File.basename(argument.name)}`
 		end
-		drop_type_line
+
+		return [argument.name]
 
 	end
 
@@ -258,7 +259,7 @@ class Interpreter
 			File.rename(origin.name,rename.name)
 
 		elsif @type_line.first == "pipe,string"
-			
+
 			rename = process_insertion(rename,result)
 
 			unless object
@@ -279,7 +280,6 @@ class Interpreter
 				rename.name = result[1]
 			end
 		end
-		drop_type_line
 		return [rename.name]
 
 	end

@@ -7,7 +7,7 @@ command2 = "Make-Object -directory ./dir-dir |accu Print-File -quiet ./files.txt
 
 command3 = "Make-Object -directory ./dir-dir | Rename-Object -force ./$_1 "
 
-cur = command2
+cur = command1
 puts cur
 sin = Syntax.new(cur)
 sin.iterate

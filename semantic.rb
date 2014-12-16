@@ -52,9 +52,8 @@ class Semantic
 
 					should_be_in = @types_table.types[block.name]["in"]
 					args_places = check_args(block.arguments,should_be_in,in_pipe)
-
 					block.print_error(error_message(block,should_be_in,in_pipe)) if @error 
-					
+					 
 					in_pipe = @types_table.types[block.name]["out"].first
 					add_type(args_places)	
 
@@ -63,13 +62,13 @@ class Semantic
 					type_line.push("error")	
 				end
 				if @each
-					in_pipe = ARRAY
+					#in_pipe = ARRAY
 				end
 
 				@each = false
 			end
 			if (block.class.to_s == Pipe.name.to_s)
-				in_pipe = ARRAY if accumulate
+				#in_pipe = ARRAY if accumulate
 				determine_block_type(block)
 			end
 

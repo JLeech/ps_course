@@ -11,6 +11,7 @@ class Interpreter
 	attr_accessor :type_line
 	attr_accessor :blocks
 	attr_accessor :current_path
+	attr_accessor :current_arg
 
 	attr_accessor :in_accu
 	attr_accessor :in_each
@@ -21,6 +22,7 @@ class Interpreter
 		@current_path = File.dirname(__FILE__)
 		@in_accu = false
 		@in_each = false
+		@current_arg = ""
 	end
 
 	def run
@@ -35,6 +37,7 @@ class Interpreter
 		tmp_result = []
 		result = []
 		blocks.each do |block|
+			@current_arg = result.first
 			if @in_accu
 				tmp_result = execute(block,result)
 				result << tmp_result
@@ -43,14 +46,18 @@ class Interpreter
 			elsif @in_each
 				each_result = []
 				result.each do |argument|
-					each_result << execute(block,[argument])
+					@current_arg = argument
+					each_result << execute(block,result)
 				end
 				drop_type_line
 				result = each_result
+				result.flatten!
 				@in_each = false
+
 			else
-				result = execute(block,result)			
+				result = execute(block,result)
 			end
+			
 		end
 	end
 
@@ -94,22 +101,24 @@ class Interpreter
 
 	def execute_remove_object(block,result)
 
+
 		if @type_line.first == "string"
 			argument = block.arguments.first.get_copy
 		elsif @type_line.first == "pipe"
 			argument = Argument.new(result.first)
 		end
 
-		argument.name = "#{current_path}/" + "#{argument.name[2..-1]}" if argument.name.start_with?("./")
-		
-		argument.name.gsub!(Argument::INSERT,"#{File.basename(result)}") if argument.has_insertion?
+		argument = process_insertion(argument,result)
 
 		`rm -rf #{argument.name}`
+
+		return [argument.name]
 
 	end
 
 
 	def execute_make_object(block,result)
+
 		file = true
 		hidden = false
 		exec = false
@@ -129,35 +138,28 @@ class Interpreter
 		end
 		if @type_line.first == "string"
 			argument = block.arguments.first.get_copy
-
 		elsif @type_line.first == "pipe"
 			argument = Argument.new(result.first)
 		end
+		
+		argument = process_insertion(argument,result)
 
-		drop_type_line
-		
-		
-
-		argument.name = "#{current_path}/" + "#{argument.name[2..-1]}" if argument.name.start_with?("./")
-		
-		argument.name = Insertions.new(argument.name,@result).process_insertions if argument.has_insertion?
-		
 		if hidden
 			new_str = argument.name.reverse.sub(File.basename(argument.name).reverse,"#{File.basename(argument.name).reverse}.").reverse
 			argument.name = new_str
 		end
-
 		`rm -rf #{argument.name}` if force
 		if file
 			tmp = File.open("#{argument.name}","w") unless File.exist?("#{argument.name}")
-			tmp.close	unless File.exist?("#{argument.name}")
-			out = "#{argument.name}" unless File.exist?("#{argument.name}")
+			tmp.close if File.exist?("#{argument.name}")
+			out = "#{argument.name}" if File.exist?("#{argument.name}")
 		else
 			Dir.mkdir("#{argument.name}") unless File.exist?("#{argument.name}")
 			out = "#{argument.name}"
 		end
 		`chmod -x #{argument.name}` if exec
-		result = [out]
+		
+		return [out]
 	end
 
 
@@ -173,12 +175,12 @@ class Interpreter
 
 		if @type_line.first == "string"
 			argument = block.arguments.first.get_copy
-			argument.name = "#{current_path}/" + "#{argument.name[2..-1]}" if argument.name.start_with?("./")
-			argument.name.gsub!(Argument::INSERT,"#{result}") if argument.has_insertion?
 
 		elsif @type_line.first == "pipe"
 			argument = Argument.new(result.first)
 		end
+
+		argument = process_insertion(argument,result)
 
 		file_data = []
 		file = File.new(argument.name, "r")
@@ -192,8 +194,7 @@ class Interpreter
 		else
 			puts file_data
 		end
-		
-		drop_type_line
+
 		return result
 
 	end
@@ -210,12 +211,12 @@ class Interpreter
 
 		if @type_line.first == "string"
 			argument = block.arguments.first.get_copy
-			argument.name = "#{current_path}/" + "#{argument.name[2..-1]}" if argument.name.start_with?("./")
-			argument.name.gsub!(Argument::INSERT,"#{result}") if argument.has_insertion?
 
 		elsif @type_line.first == "pipe"
 			argument = Argument.new(result.first)
 		end
+
+		argument = process_insertion(argument,result)
 
 		if recursive 
 			files =  Dir.entries(argument.name)
@@ -248,21 +249,19 @@ class Interpreter
 		rename = block.arguments.first.get_copy if block.arguments.count == 1
 		
 		if @type_line.first == "string,string"
-			
-			origin.name.gsub!(Argument::INSERT,"#{File.basename(result.first)}") if origin.has_insertion?
-			rename.name.gsub!(Argument::INSERT,"#{File.basename(result.first)}") if rename.has_insertion?	
 
-			origin.name = modify_to_full_path(origin.name)
-			rename.name = modify_to_full_path(rename.name)
-			
+			origin = process_insertion(origin,result)
+			rename = process_insertion(rename,result)
+
 			rename_existing(rename.name,force)
 
 			File.rename(origin.name,rename.name)
 
 		elsif @type_line.first == "pipe,string"
+			
+			rename = process_insertion(rename,result)
+
 			unless object
-				rename.name.gsub!(Argument::INSERT,"#{result.first}") if rename.has_insertion?
-				rename.name = modify_to_full_path(rename.name)
 				
 				rename_existing(rename.name,force)
 				File.rename(result.first,rename.name)
@@ -272,7 +271,13 @@ class Interpreter
 			end
 
 		elsif @type_line.first == "pipe,pipe"
-			#TODO
+			
+			unless object
+				rename_existing(result[1],force)
+				File.rename(result[0],result[1])
+			else
+				rename.name = result[1]
+			end
 		end
 		drop_type_line
 		return [rename.name]
@@ -294,6 +299,8 @@ class Interpreter
 	end
 
 	def process_insertion(argument,pipe)
-
+		argument.name = Insertions.new(argument.name,pipe,@current_arg).process_insertions if argument.has_insertion?
+		argument.name = "#{@current_path}/" + "#{argument.name[2..-1]}" if argument.name.start_with?("./")
+		return argument
 	end
 end

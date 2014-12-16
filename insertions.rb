@@ -3,10 +3,12 @@ class Insertions
 
 	attr_accessor :argument
 	attr_accessor :pipe
+	attr_accessor :current_arg
 
-	def initialize(argument,pipe)
+	def initialize(argument,pipe,current_arg)
 		@argument = argument
 		@pipe = pipe
+		@current_arg = current_arg
 	end
 
 	def process_insertions
@@ -51,7 +53,11 @@ class Insertions
 	end
 
 	def process_simple_methods(to_process)
-		@argument.gsub!(to_process.to_s,"SM")
+		method_name = /[a-z]+/.match(to_process.to_s).to_s
+		case method_name
+		when "path"
+			@argument.gsub!(to_process.to_s,@current_arg)
+		end
 	end
 
 	def find_simple_inserts
@@ -63,7 +69,7 @@ class Insertions
 	end
 
 	def process_simple_inserts(to_process)
-		@argument.gsub!(to_process.to_s,File.basename(@pipe.first))
+		@argument.gsub!(to_process.to_s,File.basename(@current_arg))
 	end
 
 end

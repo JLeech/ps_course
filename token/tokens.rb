@@ -21,7 +21,7 @@ class Argument
 	end
 
 	def get_copy
-		arg = Argument.new(name,position)
+		arg = Argument.new(name.clone,position)
 		arg.insertion = insertion
 		return arg
 	end

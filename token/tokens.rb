@@ -19,6 +19,12 @@ class Argument
 	def as_string
 		"string: \"#{@name}\","
 	end
+
+	def get_copy
+		arg = Argument.new(name,position)
+		arg.insertion = insertion
+		return arg
+	end
 end
 
 class Pipe
@@ -125,6 +131,16 @@ class Command
 		return true if @name == "Zip-Object"
 		return false
 	end
+
+	def is_print_file?
+		return true if @name == "Print-File"
+		return false
+	end
+
+	def is_remove_object?
+		return true if @name == "Remove-Object"
+		return false
+	end		
 end
 
 class Message

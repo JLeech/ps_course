@@ -1,50 +1,8 @@
 : Make-Object : 1 | err: false
 :    ["-directory"]
-:    dir-dir : false
--------------
-: | : 32
-:    |
--------------
-: Rename-Object : 34 | err: false
-:    ["-force"]
-:    new_dir : false
--------------
-: | : 63
-:    |
--------------
-: Make-Object : 65 | err: false
-:    ["-hidden"]
-:    $_/inside.txt : true
--------------
-: | : 99
-:    |
--------------
-: Zip-Object : 101 | err: false
-:    ["-recursive"]
-:    ./new_dir : false
+:    ./dir-dir : false
 -------------
 : Make-Object : 1 | err: false
 :    ["-directory"]
-:    /home/eve/Документы/ps_course/dir-dir : false
--------------
-: | : 32
-:    |
--------------
-: Rename-Object : 34 | err: false
-:    ["-force"]
-:    /home/eve/Документы/ps_course/new_dir : false
--------------
-: | : 63
-:    |
--------------
-: Make-Object : 65 | err: false
-:    ["-hidden"]
-:    /home/eve/Документы/ps_course/new_dir/.inside.txt : true
--------------
-: | : 99
-:    |
--------------
-: Zip-Object : 101 | err: false
-:    ["-recursive"]
-:    /home/eve/Документы/ps_course/new_dir : false
+:    ./dir-dir : false
 -------------

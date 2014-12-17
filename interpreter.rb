@@ -29,7 +29,7 @@ class Interpreter
 		if run?
 			execute_commands
 		else
-			puts "Some errors occured during parsing. Check log and retry."
+			puts "Some errors occured during parsing. Check log."
 		end
 	end
 
@@ -71,6 +71,7 @@ class Interpreter
 
 	def execute(block,result)
 		if ((block.class.to_s == Command.name.to_s))
+			puts result
 			if block.is_make_object?
 				result = execute_make_object(block,result)
 			end
@@ -80,12 +81,24 @@ class Interpreter
 			if block.is_zip_object?
 				result = execute_zip_object(block,result)
 			end
+			if block.is_unzip_object?
+				result = execute_unzip_object(block,result)
+			end
 			if block.is_print_file?
 				result = execute_print_file(block,result)
 			end
 			if block.is_remove_object?
 				result = execute_remove_object(block,result)
 			end
+			if block.is_current_directory?
+				result = execute_current_directory(block,result)
+			end
+			if block.is_change_directory?
+				result = execute_change_directory(block,result)
+			end
+			if block.is_list_objects?
+				result = execute_list_objects(block,result)
+			end			
 			drop_type_line
 		end
 		if ((block.class.to_s == Pipe.name.to_s))
@@ -97,6 +110,35 @@ class Interpreter
 			end
 		end
 		return result
+	end
+
+	def execute_current_directory(block,result)
+		puts current_path
+		return [@current_path]
+	end
+
+	def execute_change_directory(block,result)
+		create = false
+
+		block.flags.each do |flag|
+			case flag
+			when  "-create"
+				create = true
+			end
+		end
+
+		if @type_line.first == "string"
+			argument = block.arguments.first.get_copy
+		elsif @type_line.first == "pipe"
+			argument = Argument.new(result.first)
+		end
+
+		argument = process_insertion(argument,result)
+		@current_path = argument.name
+		
+		puts @current_path
+
+		return [argument.name]
 	end
 
 	def execute_remove_object(block,result)
@@ -114,7 +156,6 @@ class Interpreter
 		return [argument.name]
 
 	end
-
 
 	def execute_make_object(block,result)
 
@@ -147,7 +188,9 @@ class Interpreter
 			new_str = argument.name.reverse.sub(File.basename(argument.name).reverse,"#{File.basename(argument.name).reverse}.").reverse
 			argument.name = new_str
 		end
-		`rm -rf #{argument.name}` if force
+		Dir.chdir (File.dirname(argument.name)){
+			`rm -rf #{argument.name}` if force
+		}
 		if file
 			unless File.exist?("#{argument.name}")
 				tmp = File.open("#{argument.name}","w") 
@@ -158,7 +201,9 @@ class Interpreter
 			Dir.mkdir("#{argument.name}") unless File.exist?("#{argument.name}")
 			out = "#{argument.name}"
 		end
-		`chmod -x #{argument.name}` if exec
+		Dir.chdir (File.dirname(argument.name)){
+			`chmod -x #{argument.name}` if exec
+		}
 		return [out]
 	end
 
@@ -195,19 +240,10 @@ class Interpreter
 			puts file_data
 		end
 		return result
-
 	end
 
 	def execute_zip_object(block,result)
 		recursive = false
-
-		block.flags.each do |flag|
-			case flag
-			when  "-recursive"
-				recursive = true
-			end
-		end
-
 
 		if @type_line.first == "string"
 			argument = block.arguments.first.get_copy
@@ -218,19 +254,44 @@ class Interpreter
 
 		argument = process_insertion(argument,result)
 
-		if recursive 
-			files =  Dir.entries(argument.name)
-			files.delete_if { |file| file =~ /(^\.*$)/}
-			files.each do |file|
-				`zip -r #{argument.name}/#{file} {file}`
+		Dir.chdir (File.dirname(argument.name)){
+			unless recursive 
+				files =  Dir.entries(argument.name)
+				files.delete_if { |file| file =~ /(^\.*$)/}
+				files.each do |file|
+					Dir.chdir (argument.name){
+						`zip -r #{argument.name}/#{file} {file}`
+					}
+				end
+				`zip -r #{argument.name} #{File.basename(argument.name)}`
+			else
+				`zip -r #{argument.name} . -i #{File.basename(argument.name)}`
 			end
-			`zip -r #{argument.name} #{File.basename(argument.name)}`
-		else
-			`zip -r #{argument.name} #{File.basename(argument.name)}`
+		}
+		return ["#{argument.name}.zip"]
+	end
+
+	def execute_unzip_object(block,result)
+		recursive = false
+
+		if @type_line.first == "string"
+			argument = block.arguments.first.get_copy
+
+		elsif @type_line.first == "pipe"
+			argument = Argument.new(result.first)
 		end
 
-		return [argument.name]
+		argument = process_insertion(argument,result)
 
+		Dir.chdir (File.dirname(argument.name)){
+			unless recursive 
+				`unzip #{argument.name}`
+			else
+				`unzip #{argument.name}`
+			end
+		}
+		argument.name.gsub!(".zip","")
+		return [argument.name]
 	end
 
 	def execute_rename_object(block,result)
@@ -281,7 +342,38 @@ class Interpreter
 			end
 		end
 		return [rename.name]
+	end
 
+	def execute_list_objects(block,result)
+		recursive = false
+		hidden = false
+
+		block.flags.each do |flag|
+			case flag
+			when  "-recursive"
+				recursive = true
+			when "-hidden"
+				hidden = true
+			end
+
+		end
+
+		if @type_line.first == "string"
+			argument = block.arguments.first.get_copy
+
+		elsif @type_line.first == "pipe"
+			argument = Argument.new(result.first)
+		end
+
+		argument = process_insertion(argument,result)
+
+		if hidden
+			files =  Dir.entries(argument.name).delete_if { |file| file =~ /(^\.*$)/}
+		else
+			files = Dir.entries(argument.name).delete_if { |file| file =~ /(^\.+[a-z]*)/}
+		end
+		puts files
+		return [files]
 	end
 
 	def rename_existing(name,force)

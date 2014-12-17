@@ -1,15 +1,15 @@
 Copy-Object -create -force
 Move-Object	-create -force
 Rename-Object -object -force
-List-Objects -recursive -hidden
+List-Objects -hidden
 Remove-Object
 Diff-Files -path -quiet
 Make-Object -file -directory -hidden -force -exec
 Change-Directory -create 
 Current-Directory 
-Find-Object -recursive -entry
-Zip-Object -recursive
-Unzip-Object -recursive -path
+Find-Object -recursive
+Zip-Object 
+Unzip-Object -path
 Print-File -quiet
 Show-History -session -all -quiet
 Find-History -regular -session -all

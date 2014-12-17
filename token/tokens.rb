@@ -131,7 +131,10 @@ class Command
 		return true if @name == "Zip-Object"
 		return false
 	end
-
+	def is_unzip_object?
+		return true if @name == "Unzip-Object"
+		return false
+	end
 	def is_print_file?
 		return true if @name == "Print-File"
 		return false
@@ -140,7 +143,21 @@ class Command
 	def is_remove_object?
 		return true if @name == "Remove-Object"
 		return false
-	end		
+	end	
+	def is_current_directory?
+		return true if @name == "Current-Directory"
+		return false
+	end
+
+	def is_change_directory?
+		return true if @name == "Change-Directory"
+		return false
+	end
+
+	def is_list_objects?
+		return true if @name == "List-Objects"
+		return false
+	end
 end
 
 class Message

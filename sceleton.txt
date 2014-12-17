@@ -1,32 +1,4 @@
-: Make-Object : 1 | err: false
-:    ["-directory"]
-:    ./dir-dir : false
--------------
-: | : 34
-:    |
--------------
-: Rename-Object : 36 | err: false
-:    ["-force"]
-:    ./new_dir : false
--------------
-: | : 67
-:    |
--------------
-: Make-Object : 69 | err: false
+: List-Objects : 1 | err: false
 :    ["-hidden"]
-:    $_$path/inside.txt : true
--------------
-: | : 108
-:    |
--------------
-: Zip-Object : 110 | err: false
-:    ["-recursive"]
-:    ./new_dir : false
--------------
-: | : 142
-:    |
--------------
-: Remove-Object : 144 | err: false
-:    []
-:    ./new_dir : false
+:    ./ : false
 -------------

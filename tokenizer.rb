@@ -14,6 +14,8 @@ class Tokenizer
 	PIPE = "pipe"
 	ARGUMENT = "argument"
 
+	LOAD = "Load"
+
 	attr_accessor :line 
 	attr_accessor :current_length
 	attr_accessor :state
@@ -33,7 +35,18 @@ class Tokenizer
 			out["status"] = OVER
 			return out
 		end
-		token = line.split(" ").first
+		token = @line.split(" ").first
+		if token == LOAD
+			loaded = load_commands(line.split(" ")[1])
+			if @line.split(" ").drop(2).empty?
+				@line = ""
+			else
+				@line = @line.split(" ").drop(2).to_s
+			end
+			
+			@line = "#{loaded}#{@line}"
+			token = @line.split(" ").first
+		end
 		if @state == LF_COMMAND
 			if @commands_table.command?(token)
 				command = Command.new(token,@current_length)
@@ -62,6 +75,25 @@ class Tokenizer
 		@line.sub!(token,"").strip!
 		@current_length += token.length+1
 		return out
+	end
+
+	def load_commands(path)
+		commands =  read_file(path)
+		data = read_file("./program.txt")
+		data.each { |line| line = line.strip!}
+		commands = data.join(" ")
+		return commands
+	end
+
+	def read_file(file_path)
+
+		data = []
+		file = File.new(file_path, "r")
+		while (line = file.gets)
+    		data << line.chomp
+		end
+		file.close
+		return data
 	end
 
 end

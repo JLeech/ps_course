@@ -1,4 +1,39 @@
-: List-Objects : 1 | err: false
-:    ["-hidden"]
-:    ./ : false
+: Make-Object : 1 | err: false
+:    ["-directory"]
+:    ./dir-dir : false
+-------------
+: |accu : 34
+:    accu
+-------------
+: Print-File : 40 | err: false
+:    ["-quiet"]
+:    ./files.txt : false
+-------------
+: |each : 70
+:    each
+-------------
+: Make-Object : 76 | err: false
+:    []
+:    ./$_[0]/$_ : true
+-------------
+: | : 99
+:    |
+-------------
+: Remove-Object : 101 | err: false
+:    []
+:    $_$path : true
+-------------
+: |accu : 123
+:    accu
+-------------
+: Zip-Object : 129 | err: false
+:    []
+:    ./$_ : true
+-------------
+: | : 145
+:    |
+-------------
+: Remove-Object : 147 | err: false
+:    []
+:    ./$_ : true
 -------------

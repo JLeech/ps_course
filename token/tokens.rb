@@ -158,6 +158,19 @@ class Command
 		return true if @name == "List-Objects"
 		return false
 	end
+	def is_copy_object?
+		return true if @name == "Copy-Object"
+		return false
+	end
+	def is_move_object?
+		return true if @name == "Move-Object"
+		return false
+	end
+	def is_diff_files?
+		return true if @name == "Diff-Files"
+		return false
+	end
+
 end
 
 class Message

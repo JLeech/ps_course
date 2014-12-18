@@ -1,5 +1,6 @@
 require 'singleton'
 require 'pathname'
+require 'fileutils'
 
 require_relative 'token/tokens'
 require_relative 'token/tables'
@@ -71,7 +72,7 @@ class Interpreter
 
 	def execute(block,result)
 		if ((block.class.to_s == Command.name.to_s))
-			puts result
+			begin
 			if block.is_make_object?
 				result = execute_make_object(block,result)
 			end
@@ -98,8 +99,20 @@ class Interpreter
 			end
 			if block.is_list_objects?
 				result = execute_list_objects(block,result)
-			end			
+			end
+			if block.is_copy_object?
+				result = execute_copy_object(block,result)
+			end
+			if block.is_move_object?
+				result = execute_move_object(block,result)
+			end
+			if block.is_diff_files?
+				result = execute_diff_files(block,result)
+			end
 			drop_type_line
+			rescue
+				puts "some problems occured while executing #{block.name} at #{block.position}"
+			end
 		end
 		if ((block.class.to_s == Pipe.name.to_s))
 			if block.type == Pipe::ACCUMULATE
@@ -154,7 +167,6 @@ class Interpreter
 
 		`rm -rf #{argument.name}`
 		return [argument.name]
-
 	end
 
 	def execute_make_object(block,result)
@@ -189,10 +201,12 @@ class Interpreter
 			argument.name = new_str
 		end
 		Dir.chdir (File.dirname(argument.name)){
-			`rm -rf #{argument.name}` if force
+			FileUtils.rm_rf(argument.name) if force
+			FileUtils.mkdir_p(File.dirname(argument.name)) if force
 		}
 		if file
 			unless File.exist?("#{argument.name}")
+				
 				tmp = File.open("#{argument.name}","w") 
 				tmp.close
 			end
@@ -206,7 +220,6 @@ class Interpreter
 		}
 		return [out]
 	end
-
 
 	def execute_print_file(block,result)
 		quiet = false
@@ -345,13 +358,13 @@ class Interpreter
 	end
 
 	def execute_list_objects(block,result)
-		recursive = false
+		quiet = false
 		hidden = false
 
 		block.flags.each do |flag|
 			case flag
-			when  "-recursive"
-				recursive = true
+			when  "-quiet"
+				quiet = true
 			when "-hidden"
 				hidden = true
 			end
@@ -372,8 +385,162 @@ class Interpreter
 		else
 			files = Dir.entries(argument.name).delete_if { |file| file =~ /(^\.+[a-z]*)/}
 		end
-		puts files
+
+		puts files unless quiet
 		return [files]
+	end
+
+	def execute_copy_object(block,result)
+		create = false
+		force = false
+		block.flags.each do |flag|
+			case flag
+			when  "-create"
+				create = true
+			when "-force"
+				force = true
+			end
+
+		end
+
+		origin,move = Array.new(block.arguments) if block.arguments.count > 1
+		move = block.arguments.first.get_copy if block.arguments.count == 1
+		
+		if @type_line.first == "string,string"
+
+			origin = process_insertion(origin,result)
+			move = process_insertion(move,result)
+
+			rename_existing(move.name,force)
+
+			FileUtils.mkdir_p(File.dirname(move)) if create
+			FileUtils.cp(origin.name,move.name)
+
+
+		elsif @type_line.first == "pipe,string"
+
+			move = process_insertion(move,result)
+			origin = process_insertion(Argument.new(result.first),result)
+
+			rename_existing(move.name,force)
+
+			FileUtils.mkdir_p(File.dirname(move)) if create
+			FileUtils.cp(origin.name,move.name)
+
+		elsif @type_line.first == "pipe,pipe"			
+			
+			origin = process_insertion(Argument.new(result[0]),result)
+			move = process_insertion(Argument.new(result[1]),result)
+
+			rename_existing(move.name,force)
+
+			FileUtils.mkdir_p(File.dirname(move)) if create
+			FileUtils.cp(origin.name,move.name)
+		end
+		return [move.name]
+	end
+
+	def execute_move_object(block,result)
+		create = false
+		force = false
+		block.flags.each do |flag|
+			case flag
+			when  "-create"
+				create = true
+			when "-force"
+				force = true
+			end
+
+		end
+
+		origin,move = Array.new(block.arguments) if block.arguments.count > 1
+		move = block.arguments.first.get_copy if block.arguments.count == 1
+		
+		if @type_line.first == "string,string"
+
+			origin = process_insertion(origin,result)
+			move = process_insertion(move,result)
+
+			rename_existing(move.name,force)
+
+			FileUtils.mkdir_p(File.dirname(move)) if create
+			FileUtils.mv(origin.name,move.name)
+
+
+		elsif @type_line.first == "pipe,string"
+
+			move = process_insertion(move,result)
+			origin = process_insertion(Argument.new(result.first),result)
+
+			rename_existing(move.name,force)
+
+			FileUtils.mkdir_p(File.dirname(move)) if create
+			FileUtils.mv(origin.name,move.name)
+
+		elsif @type_line.first == "pipe,pipe"			
+			
+			origin = process_insertion(Argument.new(result[0]),result)
+			move = process_insertion(Argument.new(result[1]),result)
+
+			rename_existing(move.name,force)
+
+			FileUtils.mkdir_p(File.dirname(move)) if create
+			FileUtils.mv(origin.name,move.name)
+		end
+		return [move.name]
+	end
+
+	def execute_diff_files(block,result)
+		quiet = false
+		block.flags.each do |flag|
+			case flag
+			when "-quiet"
+				quiet = true
+			end
+
+		end
+
+		origin,move = Array.new(block.arguments) if block.arguments.count > 1
+		move = block.arguments.first.get_copy if block.arguments.count == 1
+		
+		if @type_line.first == "string,string"
+
+			origin = process_insertion(origin,result)
+			move = process_insertion(move,result)
+
+
+		elsif @type_line.first == "pipe,string"
+
+			move = process_insertion(move,result)
+			origin = process_insertion(Argument.new(result.first),result)
+
+		elsif @type_line.first == "pipe,pipe"			
+			
+			origin = process_insertion(Argument.new(result[0]),result)
+			move = process_insertion(Argument.new(result[1]),result)
+
+		end
+		
+		origin_data = read_file(origin.name)
+		move_data = read_file(move.name)
+
+		out = origin_data - move_data
+		out += move_data - origin_data
+		
+		puts out unless quiet
+
+		return out
+	end
+
+	def read_file(file_path)
+
+		data = []
+		file = File.new(file_path, "r")
+		while (line = file.gets)
+    		data << line.chomp
+		end
+		file.close
+		return data
 	end
 
 	def rename_existing(name,force)

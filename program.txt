@@ -1,0 +1,1 @@
+Remove-Object $_$path |accu Zip-Object ./$_ | Remove-Object ./$_ 

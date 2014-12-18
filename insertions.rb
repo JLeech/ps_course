@@ -73,11 +73,3 @@ class Insertions
 	end
 
 end
-
-
-
-#argument = "$_/$_[1]$zzz/$_[0]$llll/$_[1]/$_$lll/$_.txt"
-#pipe = ["FIRST","SECOND"]
-
-#Insertions.new(argument,pipe).process_insertions
-#puts argument

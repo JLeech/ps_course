@@ -1,9 +1,9 @@
 Copy-Object -create -force
 Move-Object	-create -force
 Rename-Object -object -force
-List-Objects -hidden
+List-Objects -hidden -quiet
 Remove-Object
-Diff-Files -path -quiet
+Diff-Files -quiet
 Make-Object -file -directory -hidden -force -exec
 Change-Directory -create 
 Current-Directory 

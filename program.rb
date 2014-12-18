@@ -3,13 +3,13 @@ require_relative 'semantic'
 require_relative 'interpreter'
 
 command1 = "Change-Directory ./XXX | Make-Object -directory ./dir-dir | Rename-Object -force ./new_dir |accu Make-Object -hidden $_$path/inside.txt |accu Zip-Object ./$_[0] | Remove-Object ./$_[0]"
-command2 = "Make-Object -directory ./dir-dir |accu Print-File -quiet ./files.txt |each Make-Object ./$_[0]/$_ | Remove-Object $_$path |accu Zip-Object -recursive ./$_ | Remove-Object ./$_ "
+command2 = "Make-Object -directory ./dir-dir |accu Print-File -quiet ./files.txt |each Make-Object ./$_[0]/$_ | Load ./program.txt "
 
-command3 = "Make-Object -directory ./dir-dir | Rename-Object -force ./$_1 "
+command3 = "Make-Object -directory ./dir-dir | Rename-Object -force ./$_1"
 
-command4 = "List-Objects ./"
+command4 = "Make-Object "
 
-cur = command4
+cur = command2
 puts cur
 sin = Syntax.new(cur)
 sin.iterate

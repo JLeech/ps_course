@@ -1,0 +1,2 @@
+Change-Directory ./test | Make-Object -directory ./zip | Rename-Object -force ./zip-zip 
+|accu Zip-Object ./$_

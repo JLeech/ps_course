@@ -78,8 +78,8 @@ class Tokenizer
 	end
 
 	def load_commands(path)
-		commands =  read_file(path)
-		data = read_file("./program.txt")
+		#commands =  read_file(path)
+		data = read_file(path)
 		data.each { |line| line = line.strip!}
 		commands = data.join(" ")
 		return commands

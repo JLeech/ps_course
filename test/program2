@@ -1,0 +1,2 @@
+Change-Directory ./test | Make-Object -directory ./dir-dir 
+|accu Print-File -quiet ./files.txt |each Make-Object ./$_[0]/$_ | Remove-Object $_$path

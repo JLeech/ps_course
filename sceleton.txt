@@ -1,39 +1,22 @@
-: Make-Object : 1 | err: false
-:    ["-directory"]
-:    ./dir-dir : false
+
+Load ./test/program5
+
+: Change-Directory : 1 | err: false
+:    []
+:    ./test/FILES_DIF : false
 -------------
-: |accu : 34
-:    accu
+: | : 35
+:    |
 -------------
-: Print-File : 40 | err: false
+: Diff-Files : 37 | err: false
 :    ["-quiet"]
-:    ./files.txt : false
+:    ./file1 : false
+:    ./file2 : false
 -------------
-: |each : 70
-:    each
--------------
-: Make-Object : 76 | err: false
-:    []
-:    ./$_[0]/$_ : true
--------------
-: | : 99
+: | : 71
 :    |
 -------------
-: Remove-Object : 101 | err: false
-:    []
-:    $_$path : true
--------------
-: |accu : 123
-:    accu
--------------
-: Zip-Object : 129 | err: false
-:    []
-:    ./$_ : true
--------------
-: | : 145
-:    |
--------------
-: Remove-Object : 147 | err: false
+: Make-Object : 73 | err: false
 :    []
 :    ./$_ : true
 -------------

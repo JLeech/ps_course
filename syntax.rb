@@ -45,7 +45,7 @@ class Syntax
 	end
 
 	def print_blocks
-		@skeleton = File.open("sceleton.txt","w+")
+		@skeleton = File.open("sceleton.txt","a+")
 		@blocks.each { |command| command.print }
 		puts @blocks.length
 		@skeleton.close
@@ -96,6 +96,7 @@ class Syntax
 				break
 			end
 		end
+		
 		print_messages
 	end
 

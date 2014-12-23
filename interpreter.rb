@@ -112,6 +112,7 @@ class Interpreter
 			drop_type_line
 			rescue
 				puts "some problems occured while executing #{block.name} at #{block.position}"
+				
 			end
 		end
 		if ((block.class.to_s == Pipe.name.to_s))
@@ -169,7 +170,7 @@ class Interpreter
 		return [argument.name]
 	end
 
-	def execute_make_object(block,result)
+	def execute_make_object(block,result)	
 
 		file = true
 		hidden = false
@@ -206,7 +207,6 @@ class Interpreter
 		}
 		if file
 			unless File.exist?("#{argument.name}")
-				
 				tmp = File.open("#{argument.name}","w") 
 				tmp.close
 			end

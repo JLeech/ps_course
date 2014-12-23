@@ -1,0 +1,1 @@
+Change-Directory ./test | Make-Object ./force_create |accu Make-Object ./$_ren | Rename-Object -force ./$_ ./$_[1]

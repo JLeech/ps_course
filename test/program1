@@ -1,0 +1,1 @@
+ Change-Directory ./test | Make-Object -directory ./program1_dir | Rename-Object -force ./$_done
